@@ -36,7 +36,7 @@ showBanner() {
     echo "║                                                                      ║"
     echo "╚══════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
-    echo -e "${MATRIX_GREEN}Follow the white rabbit... discovering privilege escalation paths${NC}"
+    echo -e "${MATRIX_GREEN}Tool for discovering privilege escalation paths in Linux${NC}"
     echo ""
 }
 
