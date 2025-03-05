@@ -914,7 +914,7 @@ analyzeSecureAccess() {
     if [ ! -z "$sshKeys" ]; then
         showWithRedPill "$sshKeys"
         addToAnomalies "SSH Keys" "Found SSH keys that may allow unauthorized access - keys to other Matrix systems"
-    fi  # <-- This should be "fi" not "}"
+    fi
     
     addToPattern "SSH Keys Check" "ANALYZED" ""
     
@@ -932,7 +932,7 @@ analyzeSecureAccess() {
         if echo "$sshConfig" | grep -i "PasswordAuthentication yes" > /dev/null; then
             addToAnomalies "SSH Password Auth" "Password authentication is enabled for SSH - access codes can be used for login"
         fi
-    }
+    fi
     
     # Check for Debian OpenSSL Predictable PRNG (CVE-2008-0166)
     if [ -f "/etc/debian_version" ]; then
@@ -940,7 +940,7 @@ analyzeSecureAccess() {
         if [[ "$sshVersion" =~ OpenSSH_4 ]] || [[ "$sshVersion" =~ OpenSSH_5.0 ]]; then
             addToAnomalies "Debian OpenSSL Vulnerability" "Potentially vulnerable to CVE-2008-0166 (Predictable PRNG) - a predictable Matrix randomness flaw"
         fi
-    }
+    fi
     
     addToPattern "SSH Configuration Check" "ANALYZED" ""
 }
@@ -958,7 +958,7 @@ analyzeValuableFiles() {
     writableProfiles=$(interrogateMatrix "find /etc -writable -name \"*.sh\" -o -writable -name \"*profile*\" -o -writable -name \"*bashrc*\" 2>/dev/null")
     if [ ! -z "$writableProfiles" ]; then
         addToAnomalies "Writable Profile Files" "Found writable profile files that can be used for privilege escalation - modifiable environment scripts"
-    }
+    fi
     
     addToPattern "Profile Files Check" "ANALYZED" ""
     
@@ -969,80 +969,12 @@ analyzeValuableFiles() {
     
     if [ ! -z "$passwdWritable" ]; then
         addToAnomalies "Writable passwd File" "The /etc/passwd file is writable - can create new Matrix identities"
-    }
+    fi
     
     if [ ! -z "$shadowWritable" ]; then
         addToAnomalies "Writable shadow File" "The /etc/shadow file is writable - can modify access codes"
-    }
+    fi
     
-    addToPattern "Password Files Check" "ANALYZED" ""
-    
-    # Check commonly interesting folders
-    logMessage "SUBSECTION" "Interesting Folders (Important Data Locations)"
-    interestingFolders="/tmp /var/tmp /dev/shm /var/www /var/backups /opt /usr/local/bin"
-    
-    for folder in $interestingFolders; do
-        if [ -d "$folder" ]; then
-            folderContents=$(interrogateMatrix "ls -la $folder 2>/dev/null")
-            showWithRedPill "Contents of $folder - a significant Matrix location:"
-            showWithRedPill "$folderContents"
-        fi
-    done
-    
-    addToPattern "Interesting Folders Check" "ANALYZED" ""
-    
-    # Check for files owned by current user in unusual locations
-    logMessage "SUBSECTION" "Files Owned by Current User (Your Data Objects)"
-    userFiles=$(interrogateMatrix "find / -user $USER -not -path \"/proc/*\" -not -path \"/sys/*\" -not -path \"/run/*\" -not -path \"/home/*\" 2>/dev/null")
-    showWithRedPill "$userFiles"
-    addToPattern "User-Owned Files Check" "ANALYZED" ""
-    
-    # Check for recently modified files
-    logMessage "SUBSECTION" "Recently Modified Files (Recent Changes)"
-    recentFiles=$(interrogateMatrix "find / -type f -mmin -60 -not -path \"/proc/*\" -not -path \"/sys/*\" -not -path \"/run/*\" 2>/dev/null")
-    showWithRedPill "$recentFiles"
-    addToPattern "Recently Modified Files Check" "ANALYZED" ""
-    
-    # Check for SQLite databases
-    logMessage "SUBSECTION" "SQLite Databases (Local Data Stores)"
-    sqliteDbs=$(interrogateMatrix "find / -name \"*.db\" -o -name \"*.sqlite\" -o -name \"*.sqlite3\" 2>/dev/null")
-    showWithRedPill "$sqliteDbs"
-    addToPattern "SQLite Databases Check" "ANALYZED" ""
-    
-    # Check for hidden files in home directories
-    logMessage "SUBSECTION" "Hidden Files (Concealed Data)"
-    hiddenFiles=$(interrogateMatrix "find /home -name \".*\" -type f 2>/dev/null")
-    showWithRedPill "$hiddenFiles"
-    addToPattern "Hidden Files Check" "ANALYZED" ""
-    
-    # Check for script/binaries in PATH
-    logMessage "SUBSECTION" "Executables in PATH (Available Commands)"
-    pathDirs=$(echo $PATH | tr ':' ' ')
-    for dir in $pathDirs; do
-        if [ -d "$dir" ]; then
-            execsInPath=$(interrogateMatrix "find $dir -type f -executable 2>/dev/null")
-            showWithRedPill "Executables in $dir - commands available in the Matrix:"
-            showWithRedPill "$execsInPath"
-        fi
-    done
-    addToPattern "Executables in PATH Check" "ANALYZED" ""
-    
-    # Check for web files
-    logMessage "SUBSECTION" "Web Files (Web Content)"
-    webFiles=$(interrogateMatrix "find / -name \"*.php\" -o -name \"*.html\" -o -name \"*.js\" -o -name \"*.conf\" -path \"*/www/*\" 2>/dev/null")
-    showWithRedPill "$webFiles"
-    addToPattern "Web Files Check" "ANALYZED" ""
-    
-    # Check for backup files
-    logMessage "SUBSECTION" "Backup Files (Data Backups)"
-    backupFiles=$(interrogateMatrix "find / -name \"*.bak\" -o -name \"*.backup\" -o -name \"*~\" -o -name \"*.old\" 2>/dev/null")
-    showWithRedPill "$backupFiles"
-    addToPattern "Backup Files Check" "ANALYZED" ""
-    
-    # Generic file search for passwords
-    logMessage "SUBSECTION" "Files Containing Passwords (Access Code Storage)"
-    passwordsInFiles=$(interrogateMatrix "grep -r \"password\" --include=\"*.txt\" --include=\"*.ini\" --include=\"*.conf\" /etc/ 2>/dev/null")
-    showWithRedPill "$passwordsInFiles"
     addToPattern "Password Files Check" "ANALYZED" ""
 }
 
@@ -1113,119 +1045,72 @@ analyzeWritableFiles() {
     
     addToPattern "Init Scripts Check" "ANALYZED" ""
 }
-
-# Check for NFS shares and other tricks (special Matrix exploits)
-analyzeSpecialExploits() {
-    logMessage "SECTION" "Other Tricks (Special Matrix Exploits)"
     
-    # Check for NFS shares
-    logMessage "SUBSECTION" "NFS Shares (Network Filesystems)"
-    nfsShares=$(interrogateMatrix "showmount -e 127.0.0.1 2>/dev/null")
+    # Check commonly interesting folders
+    logMessage "SUBSECTION" "Interesting Folders (Important Data Locations)"
+    interestingFolders="/tmp /var/tmp /dev/shm /var/www /var/backups /opt /usr/local/bin"
     
-    if [ ! -z "$nfsShares" ]; then
-        showWithRedPill "$nfsShares"
-        addToAnomalies "NFS Shares" "Found NFS shares that might be exploitable - external Matrix connections"
-    }
-    
-    addToPattern "NFS Shares Check" "ANALYZED" ""
-    
-    # Check if we're in a restricted shell
-    logMessage "SUBSECTION" "Restricted Shell (Limited Terminal)"
-    if [ -z "$BASH" ] || [ "$SHELL" != "/bin/bash" ]; then
-        currentShell=$(echo $SHELL)
-        showWithRedPill "Current shell: $currentShell - a restricted Matrix interface"
-        addToAnomalies "Restricted Shell" "User might be in a restricted shell - trapped in a Matrix construct"
-    fi
-    
-    addToPattern "Restricted Shell Check" "ANALYZED" ""
-}
-
-# Generate final report - Summarizing what we found in the Matrix
-generateBlueprint() {
-    logMessage "SECTION" "MatrixScan Report Summary"
-    
-    # Report vulnerabilities (Matrix anomalies)
-    logMessage "SUBSECTION" "Potential Vulnerabilities (Matrix Anomalies)"
-    
-    if [ ${#anomalies[@]} -eq 0 ]; then
-        logMessage "INFO" "No potential vulnerabilities found - Matrix integrity appears intact"
-    else
-        for anomaly in "${anomalies[@]}"; do
-            IFS="|" read -r type detail <<< "$anomaly"
-            logMessage "ANOMALY" "$type: $detail"
-        done
-    fi
-    
-    # Report checklist (patterns we've analyzed)
-    logMessage "SUBSECTION" "Checklist Summary (Analyzed Matrix Patterns)"
-    
-    for item in "${searchPatterns[@]}"; do
-        IFS="|" read -r check status detail <<< "$item"
-        if [ -z "$detail" ]; then
-            logMessage "INFO" "[$status] $check"
-        else
-            logMessage "INFO" "[$status] $check: $detail"
+    for folder in $interestingFolders; do
+        if [ -d "$folder" ]; then
+            folderContents=$(interrogateMatrix "ls -la $folder 2>/dev/null")
+            showWithRedPill "Contents of $folder - a significant Matrix location:"
+            showWithRedPill "$folderContents"
         fi
     done
     
-    # Privilege escalation paths (ways to escape the Matrix)
-    logMessage "SECTION" "Common Privilege Escalation Paths (Ways to Break Free)"
+    addToPattern "Interesting Folders Check" "ANALYZED" ""
     
-    logMessage "INFO" "1. Kernel Exploits - Identify and exploit kernel vulnerabilities (DirtyCow, overlayfs, etc.) - 'There is a difference between knowing the path and walking the path'"
-    logMessage "INFO" "2. Sudo Misconfiguration - Abusing sudo privileges, NOPASSWD options, or sudo tokens - 'What you know you can't explain, but you feel it'"
-    logMessage "INFO" "3. SUID Binaries - Exploiting SUID binaries via GTFOBins (nmap, vim, find, etc.) - 'Free your mind'"
-    logMessage "INFO" "4. Writable Files - Modifying service files, cron jobs, or other critical files - 'The Matrix is a system. That system is our enemy'"
-    logMessage "INFO" "5. Cron Jobs - Exploiting writable cron jobs, PATH abuse, or wildcards - 'Everything that has a beginning has an end'"
-    logMessage "INFO" "6. Capabilities - Using capabilities like cap_setuid to escalate privileges - 'I can only show you the door. You're the one that has to walk through it'"
-    logMessage "INFO" "7. Group Memberships - Leveraging docker, lxd, wheel, sudo, adm groups - 'Welcome to the real world'"
-    logMessage "INFO" "8. NFS Shares - Exploiting no_root_squash to gain root privileges - 'There is no spoon'"
-    logMessage "INFO" "9. Passwords in Files - Finding credentials in config files, history, or memory - 'The Matrix is everywhere. It is all around us'"
-    logMessage "INFO" "10. Environment Variables - Exploiting LD_PRELOAD or LD_LIBRARY_PATH - 'Unfortunately, no one can be told what the Matrix is. You have to see it for yourself'"
-    logMessage "INFO" "11. Service Exploits - Finding vulnerable versions of services (MySQL, Apache, etc.) - 'You take the red pill, and I show you how deep the rabbit hole goes'"
-    logMessage "INFO" "12. Python Library Hijacking - Modifying writable Python libraries used by privileged processes - 'The Matrix has you'"
-    logMessage "INFO" "13. Log Files Exploitation - Using techniques like Logtotten to inject code - 'Follow the white rabbit'"
+    # Check for files owned by current user in unusual locations
+    logMessage "SUBSECTION" "Files Owned by Current User (Your Data Objects)"
+    userFiles=$(interrogateMatrix "find / -user $USER -not -path \"/proc/*\" -not -path \"/sys/*\" -not -path \"/run/*\" -not -path \"/home/*\" 2>/dev/null")
+    showWithRedPill "$userFiles"
+    addToPattern "User-Owned Files Check" "ANALYZED" ""
     
-    logMessage "SECTION" "MatrixScan Completed"
+    # Check for recently modified files
+    logMessage "SUBSECTION" "Recently Modified Files (Recent Changes)"
+    recentFiles=$(interrogateMatrix "find / -type f -mmin -60 -not -path \"/proc/*\" -not -path \"/sys/*\" -not -path \"/run/*\" 2>/dev/null")
+    showWithRedPill "$recentFiles"
+    addToPattern "Recently Modified Files Check" "ANALYZED" ""
     
-    echo ""
-    echo -e "${MATRIX_GREEN}Blueprint saved to: ${blueprintFile}${NC}"
-    echo -e "${MATRIX_GREEN}Remember: 'Red pill for your system'${NC}"
-}
-
-# Main function - The entrypoint to our Matrix scanning journey
-main() {
-    showBanner
-    parseArgs "$@"
+    # Check for SQLite databases
+    logMessage "SUBSECTION" "SQLite Databases (Local Data Stores)"
+    sqliteDbs=$(interrogateMatrix "find / -name \"*.db\" -o -name \"*.sqlite\" -o -name \"*.sqlite3\" 2>/dev/null")
+    showWithRedPill "$sqliteDbs"
+    addToPattern "SQLite Databases Check" "ANALYZED" ""
     
-    # Initialize report file (The Matrix blueprint)
-    echo "" > "$blueprintFile"
+    # Check for hidden files in home directories
+    logMessage "SUBSECTION" "Hidden Files (Concealed Data)"
+    hiddenFiles=$(interrogateMatrix "find /home -name \".*\" -type f 2>/dev/null")
+    showWithRedPill "$hiddenFiles"
+    addToPattern "Hidden Files Check" "ANALYZED" ""
     
-    echo -e "${MATRIX_GREEN}[*] Jacking into the Matrix... scanning for vulnerabilities...${NC}"
-    echo ""
+    # Check for script/binaries in PATH
+    logMessage "SUBSECTION" "Executables in PATH (Available Commands)"
+    pathDirs=$(echo $PATH | tr ':' ' ')
+    for dir in $pathDirs; do
+        if [ -d "$dir" ]; then
+            execsInPath=$(interrogateMatrix "find $dir -type f -executable 2>/dev/null")
+            showWithRedPill "Executables in $dir - commands available in the Matrix:"
+            showWithRedPill "$execsInPath"
+        fi
+    done
+    addToPattern "Executables in PATH Check" "ANALYZED" ""
     
-    # Run all checks - Analyze every aspect of the Matrix
-    analyzeMatrixCore
-    analyzeDrives
-    analyzePrograms
-    analyzeNetwork
-    analyzeIdentities
-    analyzeActivePrograms
-    analyzePermissions
-    analyzeScheduledTasks
-    analyzeSystemServices
-    analyzeCommChannels
-    analyzeSpecialPermissions
-    analyzeCapabilities
-    analyzeACLs
-    analyzeShellSessions
-    analyzeSecureAccess
-    analyzeValuableFiles
-    analyzeWritableFiles
-    analyzeSpecialExploits
+    # Check for web files
+    logMessage "SUBSECTION" "Web Files (Web Content)"
+    webFiles=$(interrogateMatrix "find / -name \"*.php\" -o -name \"*.html\" -o -name \"*.js\" -o -name \"*.conf\" -path \"*/www/*\" 2>/dev/null")
+    showWithRedPill "$webFiles"
+    addToPattern "Web Files Check" "ANALYZED" ""
     
-    # Generate final report - Create the Matrix blueprint
-    generateBlueprint
-}
-
-# Run main function - Begin our journey into the Matrix
-main "$@"
+    # Check for backup files
+    logMessage "SUBSECTION" "Backup Files (Data Backups)"
+    backupFiles=$(interrogateMatrix "find / -name \"*.bak\" -o -name \"*.backup\" -o -name \"*~\" -o -name \"*.old\" 2>/dev/null")
+    showWithRedPill "$backupFiles"
+    addToPattern "Backup Files Check" "ANALYZED" ""
+    
+    # Generic file search for passwords
+    logMessage "SUBSECTION" "Files Containing Passwords (Access Code Storage)"
+    passwordsInFiles=$(interrogateMatrix "grep -r \"password\" --include=\"*.txt\" --include=\"*.ini\" --include=\"*.conf\" /etc/ 2>/dev/null")
+    showWithRedPill "$passwordsInFiles"
+    addToPattern "Password Files Check" "ANALYZED" ""
+    
