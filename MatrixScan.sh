@@ -49,7 +49,6 @@ morpheusGuide() {
     echo "  -r, --redpill          Take the red pill (enable verbose output)"
     echo "  -o, --output FILE      Save the blueprint to specified file (default: matrixscan_report.txt)"
     echo ""
-    echo "\"I can only show you the door. You're the one that has to walk through it.\""
 }
 
 # Parse command line arguments
