@@ -671,7 +671,7 @@ analyzeSystemServices() {
         if [ ! -z "$writableServices" ]; then
             showWithRedPill "$writableServices"
             addToAnomalies "Writable Service Files" "Found writable systemd service files - modifiable Matrix service definitions"
-        }
+        fi
         
         # Check for writable binaries executed by services
         logMessage "SUBSECTION" "Service Binaries (Service Executables)"
