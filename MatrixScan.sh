@@ -914,7 +914,8 @@ analyzeSecureAccess() {
     if [ ! -z "$sshKeys" ]; then
         showWithRedPill "$sshKeys"
         addToAnomalies "SSH Keys" "Found SSH keys that may allow unauthorized access - keys to other Matrix systems"
-    }
+    fi  # <-- This should be "fi" not "}"
+    
     addToPattern "SSH Keys Check" "ANALYZED" ""
     
     # Check SSH configuration
