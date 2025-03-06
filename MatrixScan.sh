@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# MatrixScan - A Matrix-themed Linux privilege escalation checker
+# MATRIXSCAN
 # "Red pill for your system"
 
 # ANSI color codes
@@ -1044,7 +1044,6 @@ analyzeWritableFiles() {
     fi
     
     addToPattern "Init Scripts Check" "ANALYZED" ""
-}
     
     # Check commonly interesting folders
     logMessage "SUBSECTION" "Interesting Folders (Important Data Locations)"
@@ -1113,8 +1112,9 @@ analyzeWritableFiles() {
     passwordsInFiles=$(interrogateMatrix "grep -r \"password\" --include=\"*.txt\" --include=\"*.ini\" --include=\"*.conf\" /etc/ 2>/dev/null")
     showWithRedPill "$passwordsInFiles"
     addToPattern "Password Files Check" "ANALYZED" ""
+}
 
-    # Main function to orchestrate the execution
+# Main function to orchestrate the execution
 main() {
     # Initialize the report file
     > "$blueprintFile"
@@ -1180,4 +1180,3 @@ main() {
 
 # Execute the main function with all arguments
 main "$@"
-    
