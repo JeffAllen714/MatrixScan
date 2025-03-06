@@ -1113,4 +1113,71 @@ analyzeWritableFiles() {
     passwordsInFiles=$(interrogateMatrix "grep -r \"password\" --include=\"*.txt\" --include=\"*.ini\" --include=\"*.conf\" /etc/ 2>/dev/null")
     showWithRedPill "$passwordsInFiles"
     addToPattern "Password Files Check" "ANALYZED" ""
+
+    # Main function to orchestrate the execution
+main() {
+    # Initialize the report file
+    > "$blueprintFile"
+    
+    # Show the banner
+    showBanner
+    
+    # Parse command line arguments
+    parseArgs "$@"
+    
+    # If help flag is provided, only show help and exit
+    if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+        morpheusGuide
+        exit 0
+    fi
+    
+    logMessage "SECTION" "Matrix scan started at $(date)"
+    logMessage "INFO" "Taking the red pill to show you how deep the rabbit hole goes..."
+    
+    # Call all analysis functions in sequence
+    analyzeMatrixCore
+    analyzeDrives
+    analyzePrograms
+    analyzeNetwork
+    analyzeIdentities
+    analyzeActivePrograms
+    analyzePermissions
+    analyzeScheduledTasks
+    analyzeSystemServices
+    analyzeCommChannels
+    analyzeSpecialPermissions
+    analyzeCapabilities
+    analyzeACLs
+    analyzeShellSessions
+    analyzeSecureAccess
+    analyzeValuableFiles
+    analyzeWritableFiles
+    
+    # Summary section
+    logMessage "SECTION" "Scan Summary (Matrix Analysis Results)"
+    
+    # Report on anomalies found
+    logMessage "SUBSECTION" "Vulnerabilities Found (Matrix Anomalies)"
+    if [ ${#anomalies[@]} -eq 0 ]; then
+        logMessage "INFO" "No vulnerabilities found. The Matrix appears secure."
+    else
+        logMessage "WARNING" "Found ${#anomalies[@]} potential vulnerabilities:"
+        for anomaly in "${anomalies[@]}"; do
+            IFS='|' read -r name detail <<< "$anomaly"
+            logMessage "ANOMALY" "$name: $detail"
+        done
+    fi
+    
+    # Report on checks performed
+    logMessage "SUBSECTION" "Checks Performed (Matrix Search Patterns)"
+    logMessage "INFO" "Performed ${#searchPatterns[@]} security checks"
+    
+    logMessage "SECTION" "Matrix scan completed at $(date)"
+    
+    echo -e "${MATRIX_GREEN}Matrix scan complete. Results saved to: $blueprintFile${NC}"
+    echo -e "${MATRIX_GREEN}Remember: All I'm offering is the truth, nothing more.${NC}"
+}
+
+# Execute the main function with all arguments
+main "$@"
     
