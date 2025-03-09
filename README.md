@@ -1,11 +1,10 @@
 # MatrixScan
 
-MatrixScan is a comprehensive Linux privilege escalation checker with a Matrix-inspired theme. It systematically analyzes your system for potential privilege escalation vectors, security misconfigurations, and vulnerabilities that could be exploited to gain higher privileges. Unlike other security tools, MatrixScan presents its findings within the metaphor of "The Matrix," making security assessments more engaging while remaining thorough and professional.
+MatrixScan is a comprehensive Linux privilege escalation checker with a Matrix-inspired theme. It systematically analyzes your system for potential privilege escalation vectors, security misconfigurations, and vulnerabilities that could be exploited to gain higher privileges.
 
 ## Features
 
 - **Comprehensive Analysis**: Performs over 200 individual security checks across 15 categories
-- **Matrix-Themed Output**: Engaging feedback with references to "The Matrix" movie
 - **Detailed Reporting**: Generates complete reports with findings and recommendations
 - **Red Pill Mode**: Verbose output option that shows "how deep the rabbit hole goes"
 - **Color-Coded Results**: Easy identification of security issues by severity
